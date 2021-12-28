@@ -79,7 +79,7 @@ const newspapers = [
 
 const articles = [];
 
-newspapers.forEach(({address, name, base}) => {
+newspapers.forEach(({ address, name, base }) => {
   axios.get(address).then((response) => {
     const html = response.data;
     const $ = cheerio.load(html);
@@ -98,29 +98,38 @@ newspapers.forEach(({address, name, base}) => {
 });
 
 app.get("/", (req, res) => {
-  res.json({ message: "welcome to my Climate Change news api" });
+  res.json({
+    message: "welcome to my Climate Change news api",
+    endpoints: ["/news", "/news/:newspaperName"],
+  });
 });
 
-app.get("/news", async (req, res) => {
-  //   const url = "https://www.theguardian.com/environment/climate-crisis";
-  //   try {
-  //     const response = await axios.get(url);
-  //     const html = response.data;
-  //     const $ = cheerio.load(html);
-
-  //     $('a:contains("climate")', html).each(function () {
-  //       const title = $(this).text();
-  //       const url = $(this).attr("href");
-
-  //       articles.push({ title, url });
-  //     });
-
-  //     res.json(articles);
-  //   } catch (error) {
-  //     console.log(error);
-  //     res.status(400).json({ message: "Internal Server Error" });
-  //   }
+app.get("/news", (req, res) => {
   res.json(articles);
+});
+
+app.get("/news/:newspaperName", (req, res) => {
+  const newspaperName = req.params.newspaperName;
+
+  const { name, address, base } = newspapers.filter(
+    ({ name }) => name == newspaperName
+  )[0];
+
+  axios
+    .get(address)
+    .then((response) => {
+      const html = response.data;
+      const $ = cheerio.load(html);
+      const specificArticles = [];
+
+      $('a:contains("climate")', html).each(function () {
+        const title = $(this).text();
+        const url = $(this).attr("href");
+        specificArticles.push({ title, url: base + url, source: name });
+      });
+      res.json(specificArticles);
+    })
+    .catch((err) => console.log(err));
 });
 
 const PORT = process.env.PORT || 4000;
