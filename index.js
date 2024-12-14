@@ -45,11 +45,6 @@ const newspapers = [
     base: "https://www.smh.com.au",
   },
   {
-    name: "un",
-    address: "https://www.un.org/climatechange",
-    base: "",
-  },
-  {
     name: "bbc",
     address: "https://www.bbc.co.uk/news/science_and_environment",
     base: "https://www.bbc.co.uk",
